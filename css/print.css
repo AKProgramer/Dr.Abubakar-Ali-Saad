@@ -1,0 +1,43 @@
+@page{
+  size:A4 portrait;
+  margin:0;
+}
+
+@media print{
+  html,body{background:#fff !important;}
+
+  .sidebar,
+  .no-print,
+  .rx-toolbar{
+    display:none !important;
+  }
+
+  .main{padding:0 !important;}
+
+  .screen{display:none !important;}
+  .screen[data-screen="prescription"]{display:block !important;}
+
+  .rx-stage{
+    display:block !important;
+    padding:0 !important;
+  }
+
+  .rx-paper{
+    box-shadow:none !important;
+    width:210mm;
+    min-height:297mm;
+    margin:0 auto;
+    padding:12mm 12mm 10mm;
+  }
+
+  .rx-footer, .rx-followup, .rx-header, .rx-rule{
+    break-inside:avoid;
+  }
+
+  .rx-medicines{
+    break-inside:auto;
+  }
+  .rx-med-item{
+    break-inside:avoid;
+  }
+}

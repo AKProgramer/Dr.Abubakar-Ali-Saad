@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multan Heart Care &mdash; Patient Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/print.css" media="print">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-logo">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#heartLogo"></use></svg>
+      </span>
+      <div class="brand-text">
+        <strong>Multan Heart Care</strong>
+        <small>Patient Manager</small>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="nav-link" data-nav="dashboard">
+        <svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6V11h-6v9zm0-16v5h6V4h-6z"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-link" data-nav="patients">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        Patients
+      </button>
+    </nav>
+    <button class="btn btn-primary btn-block nav-add-patient" data-nav="patient-form">+ Add Patient</button>
+    <div class="sidebar-foot">
+      <small>Dr. Abubakr Ali Saad</small><br>
+      <small>Professor of Cardiology</small>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section class="screen active" data-screen="dashboard">
+      <header class="page-head">
+        <h1>Dashboard</h1>
+        <div class="page-head-actions">
+          <span class="search-wrap"><input type="search" id="dashSearch" class="input search-input" placeholder="Search patient by name, ID, or phone&hellip;"></span>
+          <button class="btn btn-primary" data-nav="patient-form">+ Add Patient</button>
+        </div>
+      </header>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <span class="stat-value" id="statTotalPatients">0</span>
+          <span class="stat-label">Total Patients</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statTodayConsults">0</span>
+          <span class="stat-label">Today&rsquo;s Consultations</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statTotalConsults">0</span>
+          <span class="stat-label">Total Consultations</span>
+        </div>
+      </div>
+
+      <div class="panel-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Recent Patients</h2>
+            <button class="link-btn" data-nav="patients">View all</button>
+          </div>
+          <table class="table" id="recentPatientsTable">
+            <thead><tr><th>Name</th><th>Age/Gender</th><th>Last Visit</th><th>Condition</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Recent Prescriptions</h2>
+          </div>
+          <ul class="simple-list" id="recentPrescriptionsList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- PATIENTS LIST -->
+    <section class="screen" data-screen="patients">
+      <header class="page-head">
+        <h1>Patients</h1>
+        <div class="page-head-actions">
+          <span class="search-wrap"><input type="search" id="patientSearch" class="input search-input" placeholder="Search by name, ID, phone or CNIC&hellip;"></span>
+          <button class="btn btn-primary" data-nav="patient-form">+ Add Patient</button>
+        </div>
+      </header>
+      <div class="panel">
+        <table class="table" id="patientsTable">
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Age</th><th>Phone</th><th>Last Visit</th><th>Diagnosis / Condition</th><th></th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <p class="empty-state" id="patientsEmptyState" hidden>No patients found.</p>
+      </div>
+    </section>
+
+    <!-- ADD / EDIT PATIENT -->
+    <section class="screen" data-screen="patient-form">
+      <header class="page-head">
+        <h1 id="patientFormTitle">Add Patient</h1>
+      </header>
+      <form class="panel form-panel" id="patientForm">
+        <input type="hidden" id="pfId">
+        <div class="form-grid">
+          <label class="field"><span>Full Name *</span><input type="text" id="pfName" required></label>
+          <label class="field"><span>Age</span><span class="input-affix"><input type="number" id="pfAge" min="0" max="130"><span class="input-affix-unit">yrs</span></span></label>
+          <label class="field"><span>Date of Birth</span><input type="date" id="pfDob"></label>
+          <label class="field"><span>Gender</span>
+            <select id="pfGender">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+          <label class="field"><span>Phone</span><input type="tel" id="pfPhone" placeholder="03XX-XXXXXXX"></label>
+          <label class="field"><span>CNIC / National ID</span><input type="text" id="pfCnic" placeholder="XXXXX-XXXXXXX-X"></label>
+          <label class="field field-wide"><span>Address</span><input type="text" id="pfAddress"></label>
+          <label class="field field-wide"><span>Relevant Disease / Condition</span><input type="text" id="pfCondition" placeholder="e.g. Hypertension, IHD, Post-MI"></label>
+          <label class="field field-wide"><span>Notes</span><textarea id="pfNotes" rows="3"></textarea></label>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" data-nav="patients">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Patient</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- PATIENT PROFILE -->
+    <section class="screen" data-screen="patient-profile">
+      <header class="page-head">
+        <button class="link-btn back-link" data-nav="patients">&larr; Back to Patients</button>
+      </header>
+      <div class="profile-head panel">
+        <div class="profile-id">
+          <h1 id="ppName">&nbsp;</h1>
+          <div class="profile-meta" id="ppMeta"></div>
+          <div class="profile-tags" id="ppTags"></div>
+        </div>
+        <div class="profile-actions">
+          <button class="btn btn-ghost" id="ppEditBtn">Edit Patient</button>
+          <button class="btn btn-primary btn-lg" id="ppNewConsultBtn">+ New Consultation</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="history">Consultation History</button>
+        <button class="tab-btn" data-tab="prescriptions">Previous Prescriptions</button>
+        <button class="tab-btn" data-tab="reports">Medical Reports</button>
+        <button class="tab-btn" data-tab="info">Basic Info</button>
+      </div>
+
+      <div class="tab-panel active" data-tab-panel="history">
+        <div class="panel">
+          <table class="table" id="historyTable">
+            <thead><tr><th>Date</th><th>BP</th><th>Pulse</th><th>Weight</th><th>Diagnosis</th><th>Medicines</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <p class="empty-state" id="historyEmptyState" hidden>No consultations yet. Start a new consultation above.</p>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="prescriptions">
+        <div class="panel">
+          <ul class="simple-list" id="prescriptionsList"></ul>
+          <p class="empty-state" id="prescriptionsEmptyState" hidden>No prescriptions yet.</p>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="reports">
+        <div class="panel">
+          <ul class="simple-list" id="reportsList"></ul>
+          <p class="empty-state" id="reportsEmptyState" hidden>No reports uploaded yet.</p>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="info">
+        <div class="panel">
+          <dl class="info-grid" id="infoGrid"></dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEW CONSULTATION -->
+    <section class="screen" data-screen="consultation-form">
+      <header class="page-head">
+        <button class="link-btn back-link" id="cfBackLink">&larr; Back to Patient Profile</button>
+        <h1>New Consultation &mdash; <span id="cfPatientName"></span></h1>
+      </header>
+
+      <form id="consultForm">
+        <input type="hidden" id="cfId">
+        <input type="hidden" id="cfPatientId">
+
+        <div class="tabs">
+          <button type="button" class="tab-btn active" data-ctab="vitals">Vitals &amp; Risk Factors</button>
+          <button type="button" class="tab-btn" data-ctab="diagnosis">Diagnosis &amp; Notes</button>
+          <button type="button" class="tab-btn" data-ctab="medicines">Medicines</button>
+          <button type="button" class="tab-btn" data-ctab="reports">Reports</button>
+          <button type="button" class="tab-btn" data-ctab="followup">Follow-up</button>
+        </div>
+
+        <div class="tab-panel active" data-ctab-panel="vitals">
+          <div class="panel form-panel">
+            <div class="form-grid">
+              <label class="field"><span>Date</span><input type="date" id="cfDate"></label>
+              <label class="field"><span>Blood Pressure (Systolic/Diastolic)</span>
+                <div class="input-pair">
+                  <input type="number" id="cfBpSys" placeholder="120"><span>/</span><input type="number" id="cfBpDia" placeholder="80">
+                </div>
+              </label>
+              <label class="field"><span>Pulse</span><span class="input-affix"><input type="number" id="cfPulse"><span class="input-affix-unit">bpm</span></span></label>
+              <label class="field"><span>RBS</span><span class="input-affix"><input type="number" id="cfRbs"><span class="input-affix-unit">mg/dL</span></span></label>
+              <label class="field"><span>Height</span><span class="input-affix"><input type="number" id="cfHeight"><span class="input-affix-unit">cm</span></span></label>
+              <label class="field"><span>Weight</span><span class="input-affix"><input type="number" id="cfWeight"><span class="input-affix-unit">kg</span></span></label>
+              <label class="field"><span>BMI</span><span class="input-affix"><input type="text" id="cfBmi" readonly placeholder="auto-calculated"><span class="input-affix-unit">kg/m&sup2;</span></span></label>
+              <label class="field"><span>V.B (Vocal/Venous Blowing)</span>
+                <select id="cfVb"><option value="+">+</option><option value="++">++</option><option value="-">-</option></select>
+              </label>
+              <label class="field"><span>S1 + S2</span>
+                <select id="cfS1s2"><option value="+">Normal (+)</option><option value="muffled">Muffled</option><option value="murmur">Murmur present</option></select>
+              </label>
+            </div>
+            <fieldset class="risk-factors">
+              <legend>Risk Factors</legend>
+              <label class="checkbox"><input type="checkbox" id="cfDm"> DM</label>
+              <label class="checkbox"><input type="checkbox" id="cfHtn"> HTN</label>
+              <label class="checkbox"><input type="checkbox" id="cfSmoking"> Smoking</label>
+              <label class="checkbox"><input type="checkbox" id="cfDyslipidemia"> Dyslipidemia</label>
+              <label class="checkbox"><input type="checkbox" id="cfFh"> F/H</label>
+            </fieldset>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-ctab-panel="diagnosis">
+          <div class="panel form-panel">
+            <div class="form-grid">
+              <label class="field field-wide"><span>Symptoms</span><textarea id="cfSymptoms" rows="2"></textarea></label>
+              <label class="field field-wide"><span>Diagnosis</span><textarea id="cfDiagnosis" rows="2"></textarea></label>
+              <label class="field field-wide"><span>Clinical Notes</span><textarea id="cfNotes" rows="3"></textarea></label>
+              <label class="field field-wide"><span>Additional Remarks</span><textarea id="cfRemarks" rows="2"></textarea></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-ctab-panel="medicines">
+          <div class="panel">
+            <div class="med-rows" id="medRows"></div>
+            <button type="button" class="btn btn-ghost" id="addMedRowBtn">+ Add Medicine</button>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-ctab-panel="reports">
+          <div class="panel">
+            <div class="report-upload">
+              <input type="file" id="reportFileInput" hidden multiple>
+              <button type="button" class="btn btn-ghost" id="reportUploadBtn">+ Select Report File</button>
+              <select id="reportTypeSelect">
+                <option>ECG</option>
+                <option>Echo Report</option>
+                <option>Lab Report</option>
+                <option>Angiography</option>
+                <option>X-Ray</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <ul class="simple-list" id="reportStagingList"></ul>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-ctab-panel="followup">
+          <div class="panel form-panel">
+            <div class="form-grid">
+              <label class="field"><span>Follow-up Date</span><input type="date" id="cfFollowDate"></label>
+              <label class="field"><span>Follow-up After (days)</span><input type="number" id="cfFollowDays" placeholder="e.g. 15"></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions sticky-actions">
+          <button type="button" class="btn btn-ghost" id="cfCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-lg">Save &amp; Generate Prescription</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- PRESCRIPTION PREVIEW -->
+    <section class="screen" data-screen="prescription">
+      <div class="rx-toolbar no-print">
+        <button class="link-btn back-link" id="rxBackLink">&larr; Back to Patient Profile</button>
+        <div class="rx-toolbar-actions">
+          <button class="btn btn-ghost" id="rxEditBtn">Edit Consultation</button>
+          <button class="btn btn-primary" id="rxPrintBtn">Print Prescription</button>
+        </div>
+      </div>
+
+      <div class="rx-stage">
+        <div class="rx-paper" id="rxPaper">
+          <!-- ===== HEADER ===== -->
+          <div class="rx-header">
+            <div class="rx-doctor">
+              <em class="rx-prof">Professor</em>
+              <h2 class="rx-docname">Dr. Abubakr Ali Saad</h2>
+              <p class="rx-qual">FCPS (Cardiology), FPCS (PCS)</p>
+              <p class="rx-qual">Ph. D (Scholar), MCPS (Medical Education)</p>
+              <p class="rx-title">Professor of Cardiology</p>
+            </div>
+            <div class="rx-logo">
+              <svg viewBox="0 0 100 100"><use href="#heartLogo"></use></svg>
+            </div>
+            <div class="rx-creds">
+              <p>ICMT, CHR, CME</p>
+              <p>BLS - Instructor (AHA)</p>
+              <p>ACLS - Instructor (AHA)</p>
+              <p>Diploma in Health and Nutrition</p>
+              <p>Diploma in Medical Journalism</p>
+              <p>Diploma in Bio-Ethics (SIUT)</p>
+            </div>
+          </div>
+          <div class="rx-rule"><span class="rx-rule-ar">&#1607;&#1608; &#1575;&#1604;&#1588;&#1575;&#1601;&#1610;</span></div>
+
+          <!-- ===== BODY ===== -->
+          <div class="rx-body">
+            <div class="rx-main">
+              <div class="rx-main-top">
+                <span class="rx-rx-symbol">R<sub>x</sub></span>
+                <div class="rx-patient-line">
+                  <span id="rxPatientName" class="rx-patient-name"></span>
+                  <span id="rxPatientMeta" class="rx-patient-meta"></span>
+                </div>
+              </div>
+              <div class="rx-diagnosis" id="rxDiagnosis"></div>
+              <div class="rx-medicines" id="rxMedicines"></div>
+              <div class="rx-notes" id="rxNotes"></div>
+            </div>
+
+            <div class="rx-side">
+              <div class="rx-date-row"><span>Date</span><span class="rx-fill" id="rxDate"></span></div>
+              <ul class="rx-risk-list" id="rxRiskList">
+                <li data-key="dm">DM</li>
+                <li data-key="htn">HTN</li>
+                <li data-key="smoking">Smoking</li>
+                <li data-key="dyslipidemia">Dyslipidemia</li>
+                <li data-key="fh">F/H</li>
+              </ul>
+              <div class="rx-vital-row"><span>B.P</span><span class="rx-fill" id="rxBp"></span></div>
+              <div class="rx-vital-row"><span>V.B</span><span class="rx-fill" id="rxVb">+</span></div>
+              <div class="rx-vital-row"><span>S1+S2</span><span class="rx-fill" id="rxS1s2">+</span></div>
+              <div class="rx-side-rule"></div>
+              <div class="rx-triangle">&#9651;</div>
+              <div class="rx-side-spacer"></div>
+              <div class="rx-rbs-box"><span>RBS</span><span class="rx-fill" id="rxRbs"></span></div>
+            </div>
+          </div>
+
+          <!-- ===== FOLLOW-UP STRIP ===== -->
+          <div class="rx-followup">
+            <span id="rxFollowDays" class="rx-fill"></span><span class="rx-ur">&#1583;&#1606;</span>
+            <span class="rx-ur">&#1578;&#1575;&#1585;&#1740;&#1582;</span><span id="rxFollowDate" class="rx-fill"></span>
+            <span class="rx-badge">&#1583;&#1608;&#1576;&#1575;&#1585;&#1729; &#1670;&#1740;&#1705; &#1575;&#1662;</span>
+          </div>
+
+          <!-- ===== FOOTER ===== -->
+          <div class="rx-footer">
+            <div class="rx-foot-col rx-foot-left">
+              <p class="rx-ur rx-ur-line">اوپی ڈی، کمرہ نمبر 11، نئی بلڈنگ،</p>
+              <p class="rx-ur rx-ur-line">چوہدری پرویز الٰہی انسٹیٹیوٹ آف کارڈیالوجی ملتان۔</p>
+              <p class="rx-foot-phone">0316-890 6045, 0334-605 8801</p>
+            </div>
+            <div class="rx-foot-stars">&#9733;&#9733;&#9733;</div>
+            <div class="rx-foot-col rx-foot-right">
+              <p class="rx-ur rx-clinic-name">ملتان ہارٹ کئیر</p>
+              <p class="rx-ur rx-ur-line">کلینک نمبر 91، دوست پلازہ، نشتر روڈ ملتان</p>
+              <p class="rx-foot-phone">0301-770 1010, 0334-6188 456, 0314-761 7331</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Shared SVG defs -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <g id="heartLogo">
+      <line x1="2" y1="50" x2="22" y2="50" stroke="#9c6b3f" stroke-width="2"/>
+      <line x1="2" y1="56" x2="22" y2="56" stroke="#9c6b3f" stroke-width="1.2"/>
+      <line x1="78" y1="50" x2="98" y2="50" stroke="#9c6b3f" stroke-width="2"/>
+      <line x1="78" y1="56" x2="98" y2="56" stroke="#9c6b3f" stroke-width="1.2"/>
+      <path d="M50 88 C24 70, 10 50, 10 32 C10 16, 23 6, 36 12 C43 15, 48 21, 50 27 C52 21, 57 15, 64 12 C77 6, 90 16, 90 32 C90 50, 76 70, 50 88 Z"
+            fill="none" stroke="#8a3b2b" stroke-width="3.5"/>
+      <polyline points="14,50 30,50 36,34 44,66 50,22 56,50 86,50" fill="none" stroke="#8a3b2b" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+    </g>
+  </defs>
+</svg>
+
+<script src="js/medicines.js"></script>
+<script src="js/data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/prescription.js"></script>
+<script src="js/render.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
